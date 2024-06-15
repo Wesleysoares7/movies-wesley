@@ -3,16 +3,23 @@ import Input from "../../../../components/input";
 import Button from "../../../../components/button";
 import CheckBox from "../../../../components/checkBox";
 import FormError from "../../../../components/form-error";
+import { useNavigate } from "react-router-dom";
 
 type errorType = {
   password: string;
   email: string;
 };
 
+const user = {
+  email: "josiel.jcc@hotmail.com",
+  password: "teste123",
+};
+
 function LoginForm() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const navigate = useNavigate();
   const [error, setError] = useState<errorType>({
     password: "A senha deve ter entre 4 e 60 caracteres.",
     email: "Informe um email ou número de telefone válido.",
@@ -43,6 +50,14 @@ function LoginForm() {
     setError({ ...error, email: "" });
   };
 
+  const handleLogin = () => {
+    if (user.email === email && user.password) {
+      navigate("/home");
+      return;
+    }
+    alert("usuário inválido");
+  };
+
   useEffect(() => {
     validatePassword();
   }, [password]);
@@ -68,15 +83,10 @@ function LoginForm() {
         value={password}
         setValue={setPassword}
         placeholder="Senha"
-        type="text"
+        type="password"
       />
       {error.password && <FormError>{error.password}</FormError>}
-      <Button
-        disabled={isFormValid}
-        handleClick={() => {
-          alert("enable");
-        }}
-      >
+      <Button disabled={isFormValid} handleClick={handleLogin}>
         Entrar
       </Button>
       <p className="text-white text-center">OU</p>

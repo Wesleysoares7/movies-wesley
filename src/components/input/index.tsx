@@ -1,9 +1,9 @@
 type InputProps = {
-  className?: string;
   placeholder: string;
   value: string;
   type: string;
   setValue: (value: string) => void;
+  className?: string;
 };
 
 const Input = ({

@@ -1,12 +1,55 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../../../../components/input";
 import Button from "../../../../components/button";
 import CheckBox from "../../../../components/checkBox";
+import FormError from "../../../../components/form-error";
+
+type errorType = {
+  password: string;
+  email: string;
+};
 
 function LoginForm() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [error, setError] = useState<errorType>({
+    password: "A senha deve ter entre 4 e 60 caracteres.",
+    email: "Informe um email ou número de telefone válido.",
+  });
+
+  const isFormValid = Boolean(error.email) || Boolean(error.password);
+
+  const validatePassword = () => {
+    if (!(password.length >= 4 && password.length <= 60)) {
+      setError({
+        ...error,
+        password: "A senha deve ter entre 4 e 60 caracteres.",
+      });
+      return;
+    }
+    setError({ ...error, password: "" });
+  };
+
+  const validateEmail = () => {
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+    if (!emailRegex.test(email)) {
+      setError({
+        ...error,
+        email: "Informe um email ou número de telefone válido.",
+      });
+      return;
+    }
+    setError({ ...error, email: "" });
+  };
+
+  useEffect(() => {
+    validatePassword();
+  }, [password]);
+
+  useEffect(() => {
+    validateEmail();
+  }, [email]);
 
   return (
     <div
@@ -20,13 +63,22 @@ function LoginForm() {
         placeholder="Email ou número de celular"
         type="text"
       />
+      {error.email && <FormError>{error.email}</FormError>}
       <Input
         value={password}
         setValue={setPassword}
         placeholder="Senha"
         type="text"
       />
-      <Button handleClick={() => {}}>Entrar</Button>
+      {error.password && <FormError>{error.password}</FormError>}
+      <Button
+        disabled={isFormValid}
+        handleClick={() => {
+          alert("enable");
+        }}
+      >
+        Entrar
+      </Button>
       <p className="text-white text-center">OU</p>
       <Button color="bg-gray-500/50" handleClick={() => {}}>
         Usar código de acesso

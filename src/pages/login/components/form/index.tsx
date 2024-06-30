@@ -1,16 +1,75 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../../../../components/input";
 import Button from "../../../../components/button";
 import CheckBox from "../../../../components/checkBox";
+import FormError from "../../../../components/form-error";
+import { useNavigate } from "react-router-dom";
+import { errorType } from "../../types";
+
+const user = {
+  email: "josiel.jcc@hotmail.com",
+  password: "teste123",
+};
 
 function LoginForm() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [isDirty, setIsDirty] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const [error, setError] = useState<errorType>({
+    password: "A senha deve ter entre 4 e 60 caracteres.",
+    email: "Informe um email ou número de telefone válido.",
+  });
+
+  const isFormValid = Boolean(error.email) || Boolean(error.password);
+
+  const handleLogin = () => {
+    if (user.email === email && user.password) {
+      navigate("/home");
+      return;
+    }
+    alert("usuário inválido");
+  };
+
+  useEffect(() => {
+    const validatePassword = () => {
+      if (password.length !== 0) {
+        setIsDirty(true);
+      }
+      if (!(password.length >= 4 && password.length <= 60)) {
+        setError({
+          ...error,
+          password: "A senha deve ter entre 4 e 60 caracteres.",
+        });
+        return;
+      }
+      setError({ ...error, password: "" });
+    };
+    validatePassword();
+  }, [error, password]);
+
+  useEffect(() => {
+    const validateEmail = () => {
+      if (email.length !== 0) {
+        setIsDirty(true);
+      }
+      const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+      if (!emailRegex.test(email)) {
+        setError({
+          ...error,
+          email: "Informe um email ou número de telefone válido.",
+        });
+        return;
+      }
+      setError({ ...error, email: "" });
+    };
+    validateEmail();
+  }, [email, error]);
 
   return (
     <div
-      className="bg-black/70 w-[28.125rem] h-4/6 py-12
+      className="bg-black/70 w-[28.125rem] py-12
         z-10 rounded-md flex flex-col gap-4 px-16"
     >
       <h1 className="text-3xl opacity-100 text-white font-bold mb-3">Enter</h1>
@@ -20,13 +79,17 @@ function LoginForm() {
         placeholder="Email ou número de celular"
         type="text"
       />
+      {error.email && isDirty && <FormError>{error.email}</FormError>}
       <Input
         value={password}
         setValue={setPassword}
         placeholder="Senha"
-        type="text"
+        type="password"
       />
-      <Button handleClick={() => {}}>Entrar</Button>
+      {error.password && isDirty && <FormError>{error.password}</FormError>}
+      <Button disabled={isFormValid} handleClick={handleLogin}>
+        Entrar
+      </Button>
       <p className="text-white text-center">OU</p>
       <Button color="bg-gray-500/50" handleClick={() => {}}>
         Usar código de acesso
